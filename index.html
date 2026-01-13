@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Support Ticket System</title>
+    <style>
+        :root { --primary-color: #2563eb; --bg-color: #f8fafc; }
+        body { font-family: 'Tahoma', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { color: #1e293b; text-align: center; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #475569; }
+        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 0.75rem; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #1d4ed8; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: #dcfce7; color: #166534; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="status-badge">IT Support Center</div>
+    <h2>แจ้งปัญหาการใช้งาน</h2>
+    
+    <form id="itForm">
+        <div class="form-group">
+            <label for="name">ชื่อผู้แจ้ง</label>
+            <input type="text" id="name" name="name" placeholder="ระบุชื่อของคุณ" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">เบอร์โทรศัพท์</label>
+            <input type="tel" id="phone" name="phone" placeholder="เช่น 0812345678" required>
+        </div>
+
+        <div class="form-group">
+            <label for="issue">ปัญหาที่พบ</label>
+            <select id="issue" name="issue">
+                <option value="เน็ตหลุด">🌐 อินเทอร์เน็ตหลุด/ช้า</option>
+                <option value="คอมเสีย">💻 คอมพิวเตอร์เสีย/เปิดไม่ติด</option>
+                <option value="เครื่องพิมพ์">🖨️ เครื่องพิมพ์ (Printer) มีปัญหา</option>
+                <option value="อื่นๆ">❓ อื่นๆ</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="note">หมายเหตุ / รายละเอียดเพิ่มเติม</label>
+            <textarea id="note" name="note" rows="4" placeholder="ระบุอาการเบื้องต้น..."></textarea>
+        </div>
+
+        <button type="button" id="submitBtn" onclick="sendToLine()">ส่งข้อมูลแจ้งซ่อมไปที่ LINE</button>
+    </form>
+</div>
+
+<script>
+function sendToLine() {
+    const form = document.getElementById('itForm');
+    const btn = document.getElementById('submitBtn');
+    
+    // ตรวจสอบว่ากรอกข้อมูลครบไหม
+    if(!form.name.value || !form.phone.value) {
+        alert("กรุณากรอกชื่อและเบอร์โทรศัพท์");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "กำลังส่งข้อมูล...";
+
+    const formData = new FormData(form);
+    // *** นำ URL จาก Google Apps Script ที่คุณ Deploy มาใส่ตรงนี้ ***
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxu8LPDtJxSnUxYZNigXnGYPnnT60GESDG7cZo-KsJfy5MLAXHMvwMKhMcFqkInashdaQ/exec";
+
+    fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        body: new URLSearchParams(formData)
+    })
+    .then(() => {
+        alert("ส่งข้อมูลแจ้งซ่อมเข้าระบบ LINE เรียบร้อยแล้ว!");
+        form.reset();
+        btn.disabled = false;
+        btn.innerText = "ส่งข้อมูลแจ้งซ่อมไปที่ LINE";
+    })
+    .catch(error => {
+        console.error('Error!', error.message);
+        alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+        btn.disabled = false;
+        btn.innerText = "ส่งข้อมูลแจ้งซ่อมไปที่ LINE";
+    });
+}
+</script>
+
+</body>
+</html>
