@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Admin Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 15px; background: #1e293b; color: white; }
+        .task-card { background: white; color: #333; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+        .btn-done { background: #22c55e; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>🛠 รายการแจ้งซ่อมที่ค้างอยู่</h2>
+    <div id="taskList">กำลังโหลดข้อมูล...</div>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxu8LPDtJxSnUxYZNigXnGYPnnT60GESDG7cZo-KsJfy5MLAXHMvwMKhMcFqkInashdaQ/exec";
+
+        function loadTasks() {
+            fetch(scriptURL + "?action=getPending")
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                data.forEach(task => {
+                    html += `
+                        <div class="task-card" style="border-left: 5px solid #2563eb;">
+                            <p><strong>👤 ผู้แจ้ง:</strong> ${task.name}</p>
+                            
+                            <p><strong>📞 เบอร์โทร:</strong> 
+                                <a href="tel:${task.phone}" style="color: #2563eb; font-weight: bold; text-decoration: none;">
+                                    ${task.phone} (📱 กดเพื่อโทร)
+                                </a>
+                            </p>
+                            
+                            <p><strong>🏢 สถานที่:</strong> ${task.location}</p>
+                            <p><strong>🛠 ปัญหา:</strong> ${task.issue}</p>
+                            <button class="btn-done" onclick="markDone(${task.row})">✅ ซ่อมเสร็จแล้ว</button>
+                        </div>
+                    `;
+                });
+                document.getElementById('taskList').innerHTML = html || 'ไม่มีงานค้างครับ 🎉';
+            });
+        }
+
+        function markDone(row) {
+            if(confirm('ยืนยันว่างานนี้เสร็จเรียบร้อยแล้ว?')) {
+                fetch(scriptURL + "?action=updateStatus&row=" + row)
+                .then(() => {
+                    alert('อัปเดตสถานะแล้ว!');
+                    loadTasks(); // รีโหลดรายการใหม่
+                });
+            }
+        }
+
+        loadTasks(); // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+    </script>
+</body>
+</html>
