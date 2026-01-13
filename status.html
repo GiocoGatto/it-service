@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เช็คสถานะแจ้งซ่อม</title>
+    <style>
+        body { font-family: Tahoma; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #result { margin-top: 20px; padding: 10px; border-radius: 5px; display: none; }
+        .status-box { background: #e0e7ff; padding: 10px; border-left: 5px solid #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>🔍 ตรวจสอบสถานะแจ้งซ่อม</h3>
+        <input type="tel" id="searchPhone" placeholder="กรอกเบอร์โทรศัพท์ที่ใช้แจ้ง">
+        <button onclick="checkStatus()">ค้นหาสถานะ</button>
+        
+        <div id="result">
+            <div class="status-box">
+                <p><strong>ชื่อ:</strong> <span id="resName"></span></p>
+                <p><strong>ปัญหา:</strong> <span id="resIssue"></span></p>
+                <p><strong>สถานะปัจจุบัน:</strong> <span id="resStatus" style="color: blue; font-weight: bold;"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const phone = document.getElementById('searchPhone').value;
+            const scriptURL = "https://script.google.com/macros/s/AKfycbxu8LPDtJxSnUxYZNigXnGYPnnT60GESDG7cZo-KsJfy5MLAXHMvwMKhMcFqkInashdaQ/exec";
+            
+            fetch(scriptURL + "?action=checkStatus&phone=" + phone)
+            .then(res => res.json())
+            .then(data => {
+                const resDiv = document.getElementById('result');
+                if(data.found) {
+                    resDiv.style.display = 'block';
+                    document.getElementById('resName').innerText = data.name;
+                    document.getElementById('resIssue').innerText = data.issue;
+                    document.getElementById('resStatus').innerText = data.status || "รอดำเนินการ";
+                } else {
+                    alert("ไม่พบข้อมูลการแจ้งซ่อมสำหรับเบอร์นี้");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
